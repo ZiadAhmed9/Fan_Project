@@ -5,7 +5,39 @@
 volatile uint8_t current_speed=0;
 volatile uint8_t current_timer=0;
 volatile int check=0;
+volatile int hour=0;
+volatile int timer=0;
+volatile int minute=0;
+volatile int second=0;
+volatile int count=0;
 
+
+ISR(TIMER2_OVF_vect)
+{
+	count++;
+	if(count==4)
+	{
+		second++;
+		if(second==60)
+		{
+			second=0;
+			minute++;
+		}
+		if(minute==60)
+		{
+			minute=0;
+			second=0;
+			hour++;
+		}
+		count=0;
+	}}
+void timer2_init()
+{
+	TCNT2=0;
+	SET_BIT(TCCR2,CS20);
+	SET_BIT(TCCR2,CS21);
+	SET_BIT(TCCR2,CS22);
+}
 void timer0_init(unsigned int set_value)
 {
 	SET_BIT(DDRB,PB3);
@@ -67,21 +99,31 @@ int main(void)
 	timer0_pause_init();
 	while(1)
 	{
+
+		PORTD=0;
+		SET_BIT(PORTD,PD0);
 		PORTC=current_speed;
+		_delay_ms(20);
+		PORTD=0;
+		SET_BIT(PORTD,PD1);
+		PORTC=timer;
+		_delay_ms(20);
 		if(!(PINA&(1<<PA2)))
 		{
 			if(CHECK_IF_CLEAR(PORTB,PB1)))
 			{
+				_delay_ms(10);
 			motor_start_init();
+
 			}
 			else if(CHECK_IF_SET(PORTB,PB1))
 			{
+				_delay_ms(10);
 				motor_stop_init();
-				current_speed=0;
+//				current_speed=0;
 			}
 		}
-		PORTC=current_speed;
-		if(!(PINA&(1<<PA3)))  //speed 1
+		while(!(PINA&(1<<PA3)))  //speed 1
 		{
 			timer0_init(128);
 			current_speed=1;
@@ -96,9 +138,18 @@ int main(void)
 			timer0_init(5);
 			current_speed=3;
 		}
+		if(!(PINA&(1<<PA6)))  //timer setting
+		{
+			if(timer<9)
+			{
+			_delay_ms(250);
+			timer++;
+			}
+			else
+				timer=0;
+			_delay_ms(250);
 
-
-
+		}
 
 	}
 
