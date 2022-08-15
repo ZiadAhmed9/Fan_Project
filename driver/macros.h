@@ -7,11 +7,11 @@
 
 #ifndef MACROS_H_
 #define MACROS_H_
-#define SET_BIT(REG,BIT_NUM) (REG|=(1<<BIT_NUM))
-#define CLEAR_BIT(REG,BIT_NUM) (REG&=(~(1<<BIT_NUM)))
-#define TOGGLE_BIT(REG,BIT_NUM) (REG^=(1<<BIT_NUM)))
+#define SET_BIT(REG,BIT_NUM) (REG=REG|(1<<BIT_NUM))
+#define CLEAR_BIT(REG,BIT_NUM) (REG=REG&(~(1<<BIT_NUM)))
+#define TOGGLE_BIT(REG,BIT_NUM) (REG=REG^(1<<BIT_NUM)))
 #define CHECK_IF_SET(REG,BIT_NUM) (REG&(1<<BIT_NUM))
-#define CHECK_IF_CLEAR(REG,BIT_NUM) (!(REG&(1<<bit_num))
+#define CHECK_IF_CLEAR(REG,BIT_NUM) (!(REG&(1<<BIT_NUM))
 
 
 
