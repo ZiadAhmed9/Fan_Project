@@ -1,6 +1,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
+#include <avr/sleep.h>
 #include"macros.h"
 volatile uint8_t current_speed=0;
 volatile uint8_t current_timer=0;
@@ -10,8 +11,12 @@ volatile int timer=0;
 volatile int minute=0;
 volatile int second=0;
 volatile int count=0;
+volatile int timer_en=0;
 
-
+ISR(INT0_vect)
+{
+	CLEAR_BIT(MCUCR,SE);
+}
 ISR(TIMER2_OVF_vect)
 {
 	count++;
@@ -30,13 +35,23 @@ ISR(TIMER2_OVF_vect)
 			hour++;
 		}
 		count=0;
-	}}
-void timer2_init()
+	}
+}
+void timer2_init(void)
 {
 	TCNT2=0;
 	SET_BIT(TCCR2,CS20);
 	SET_BIT(TCCR2,CS21);
 	SET_BIT(TCCR2,CS22);
+	SET_BIT(TIMSK,TOIE2);
+	SREG|=(1<<7);
+}
+void timer2_disable(void)
+{
+	CLEAR_BIT(TCCR2,CS20);
+	CLEAR_BIT(TCCR2,CS21);
+	CLEAR_BIT(TCCR2,CS22);
+	CLEAR_BIT(TIMSK,TOIE2);
 }
 void timer0_init(unsigned int set_value)
 {
@@ -90,6 +105,19 @@ void motor_start_init(void)
 
  }
 
+ void sleep_init(void)
+ {
+	 SET_BIT(MCUCR,SM1);
+ }
+
+ void INT0_init(void)
+ {
+	 SET_BIT(MCUCR,ISC01);
+	 SET_BIT(GICR,INT0);
+	 SET_BIT(SREG,7);
+	 CLEAR_BIT(DDRD,PD2);
+	 SET_BIT(PORTD,PD2);
+ }
 
 int main(void)
 {
@@ -97,33 +125,79 @@ int main(void)
 	PORTA|=0XFF;
 	seven_seg_init();
 	timer0_pause_init();
+//	INT0_init();
+	sleep_init();
 	while(1)
 	{
+		current_timer=timer-second;
 
 		PORTD=0;
 		SET_BIT(PORTD,PD0);
+		if(current_speed==0)
+		{
+			PORTC=127;
+		}
+		else
+		{
 		PORTC=current_speed;
+		if(current_speed==1)
+		{
+			SET_BIT(PORTC,PC7);
+		}
+		}
 		_delay_ms(20);
 		PORTD=0;
 		SET_BIT(PORTD,PD1);
-		PORTC=timer;
+		if(check==1)
+		{
+			PORTC=current_timer;
+			if(current_timer==2||current_timer==3||current_timer==5||current_timer==6||current_timer==8||current_timer==9)
+			{
+				CLEAR_BIT(PORTC,PC7);
+			}
+			else
+				SET_BIT(PORTC,PC7);
 		_delay_ms(20);
+		}
+		if(check==0)
+		{
+			PORTC=127;
+			_delay_ms(20);
+		}
+		if(timer-second==0&&check==1)
+		{
+			motor_stop_init();
+			timer2_disable();
+			check=0;
+			current_speed=0;
+			current_timer=0;
+			timer=0;
+			second=0;
+		}
 		if(!(PINA&(1<<PA2)))
 		{
 			if(CHECK_IF_CLEAR(PORTB,PB1)))
 			{
-				_delay_ms(10);
-			motor_start_init();
-
+				_delay_ms(250);
+				motor_start_init();
+				if(timer>0)
+				{
+					timer2_init();
+				}
+				else
+				{
+					timer2_disable();
+					second=0;
+				}
 			}
 			else if(CHECK_IF_SET(PORTB,PB1))
 			{
-				_delay_ms(10);
+				_delay_ms(250);
 				motor_stop_init();
-//				current_speed=0;
+				timer2_disable();
 			}
 		}
-		while(!(PINA&(1<<PA3)))  //speed 1
+		if(!(PINA&(1<<PA3)))  //speed 1
 		{
 			timer0_init(128);
 			current_speed=1;
@@ -144,12 +218,17 @@ int main(void)
 			{
 			_delay_ms(250);
 			timer++;
+			check=1;
 			}
 			else
+			{
 				timer=0;
 			_delay_ms(250);
+			check=0;
+			}
 
 		}
+
 
 	}
 
