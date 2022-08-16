@@ -129,7 +129,7 @@ int main(void)
 	sleep_init();
 	while(1)
 	{
-		current_timer=timer-second;
+		current_timer=timer-hour;
 
 		PORTD=0;
 		SET_BIT(PORTD,PD0);
@@ -164,7 +164,7 @@ int main(void)
 			PORTC=127;
 			_delay_ms(20);
 		}
-		if(timer-second==0&&check==1)
+		if(timer-hour==0&&check==1)
 		{
 			motor_stop_init();
 			timer2_disable();
@@ -172,7 +172,7 @@ int main(void)
 			current_speed=0;
 			current_timer=0;
 			timer=0;
-			second=0;
+			hour=0;
 		}
 		if(!(PINA&(1<<PA2)))
 		{
@@ -187,7 +187,7 @@ int main(void)
 				else
 				{
 					timer2_disable();
-					second=0;
+					hour=0;
 				}
 			}
 			else if(CHECK_IF_SET(PORTB,PB1))
@@ -214,7 +214,7 @@ int main(void)
 		}
 		if(!(PINA&(1<<PA6)))  //timer setting
 		{
-			if(timer<9)
+			if(timer<4)
 			{
 			_delay_ms(250);
 			timer++;

@@ -2031,12 +2031,12 @@ int main(void)
      ee8:	0e 94 21 07 	call	0xe42	; 0xe42 <sleep_init>
 	while(1)
 	{
-		current_timer=timer-second;
+		current_timer=timer-hour;
      eec:	80 91 6e 00 	lds	r24, 0x006E
      ef0:	90 91 6f 00 	lds	r25, 0x006F
      ef4:	28 2f       	mov	r18, r24
-     ef6:	80 91 72 00 	lds	r24, 0x0072
-     efa:	90 91 73 00 	lds	r25, 0x0073
+     ef6:	80 91 6c 00 	lds	r24, 0x006C
+     efa:	90 91 6d 00 	lds	r25, 0x006D
      efe:	92 2f       	mov	r25, r18
      f00:	98 1b       	sub	r25, r24
      f02:	89 2f       	mov	r24, r25
@@ -2736,11 +2736,11 @@ _delay_ms(double __ms)
     13b6:	89 af       	std	Y+57, r24	; 0x39
 			_delay_ms(20);
 		}
-		if(timer-second==0&&check==1)
+		if(timer-hour==0&&check==1)
     13b8:	20 91 6e 00 	lds	r18, 0x006E
     13bc:	30 91 6f 00 	lds	r19, 0x006F
-    13c0:	80 91 72 00 	lds	r24, 0x0072
-    13c4:	90 91 73 00 	lds	r25, 0x0073
+    13c0:	80 91 6c 00 	lds	r24, 0x006C
+    13c4:	90 91 6d 00 	lds	r25, 0x006D
     13c8:	28 17       	cp	r18, r24
     13ca:	39 07       	cpc	r19, r25
     13cc:	d9 f4       	brne	.+54     	; 0x1404 <main+0x552>
@@ -2764,9 +2764,9 @@ _delay_ms(double __ms)
 			timer=0;
     13f4:	10 92 6f 00 	sts	0x006F, r1
     13f8:	10 92 6e 00 	sts	0x006E, r1
-			second=0;
-    13fc:	10 92 73 00 	sts	0x0073, r1
-    1400:	10 92 72 00 	sts	0x0072, r1
+			hour=0;
+    13fc:	10 92 6d 00 	sts	0x006D, r1
+    1400:	10 92 6c 00 	sts	0x006C, r1
 		}
 		if(!(PINA&(1<<PA2)))
     1404:	e9 e3       	ldi	r30, 0x39	; 57
@@ -2947,9 +2947,9 @@ _delay_ms(double __ms)
 				{
 					timer2_disable();
     1528:	0e 94 4e 06 	call	0xc9c	; 0xc9c <timer2_disable>
-					second=0;
-    152c:	10 92 73 00 	sts	0x0073, r1
-    1530:	10 92 72 00 	sts	0x0072, r1
+					hour=0;
+    152c:	10 92 6d 00 	sts	0x006D, r1
+    1530:	10 92 6c 00 	sts	0x006C, r1
     1534:	80 c0       	rjmp	.+256    	; 0x1636 <main+0x784>
 				}
 			}
@@ -3178,10 +3178,10 @@ _delay_ms(double __ms)
     16a6:	09 f0       	breq	.+2      	; 0x16aa <main+0x7f8>
     16a8:	21 cc       	rjmp	.-1982   	; 0xeec <main+0x3a>
 		{
-			if(timer<9)
+			if(timer<4)
     16aa:	80 91 6e 00 	lds	r24, 0x006E
     16ae:	90 91 6f 00 	lds	r25, 0x006F
-    16b2:	89 30       	cpi	r24, 0x09	; 9
+    16b2:	84 30       	cpi	r24, 0x04	; 4
     16b4:	91 05       	cpc	r25, r1
     16b6:	0c f0       	brlt	.+2      	; 0x16ba <main+0x808>
     16b8:	82 c0       	rjmp	.+260    	; 0x17be <main+0x90c>
